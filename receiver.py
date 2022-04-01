@@ -125,6 +125,9 @@ def set_loss_params(args):
     if pkt_losstype == 'everyn':
         pkt_eN_N = pkt_lossparam
     elif pkt_losstype == 'alteveryn':
+        if (pkt_lossparam < 4):
+            print ("[R] Error: pktlossN must be >= 4 for alteveryn")
+            exit(-1)
         pkt_aeM_M = pkt_lossparam
     elif pkt_losstype == 'iid':
         pkt_iid_N = pkt_lossparam
@@ -136,6 +139,9 @@ def set_loss_params(args):
     if ack_losstype == 'everyn':
         ack_eN_N = ack_lossparam
     elif ack_losstype == 'alteveryn':
+        if (ack_lossparam < 4):
+            print ("[R] Error: acklossN must be >= 4 for alteveryn")
+            exit(-1)
         ack_aeM_M = ack_lossparam
     elif ack_losstype == 'iid':
         ack_iid_N = ack_lossparam
@@ -163,16 +169,16 @@ def ack_everyN():
     return ack_counter_eN == (ack_eN_N - 1)
 
 def pkt_alternateEveryM():
-    global pkt_counter_aEM
-    pkt_counter_aEM = (pkt_counter_aEM + 1) % pkt_aeM_M
-    return pkt_counter_aeM in [pkt_aEM_M - 1,
-                               pkt_aEM_M - 3]
+    global pkt_counter_aeM
+    pkt_counter_aeM = (pkt_counter_aeM + 1) % pkt_aeM_M
+    return pkt_counter_aeM in [pkt_aeM_M - 1,
+                               pkt_aeM_M - 3]
 
 def ack_alternateEveryM():
-    global ack_counter_aEM
-    ack_counter_aEM = (ack_counter_aEM + 1) % ack_aeM_M
-    return ack_counter_aeM in [ack_aEM_M - 1,
-                               ack_aEM_M - 3]
+    global ack_counter_aeM
+    ack_counter_aeM = (ack_counter_aeM + 1) % ack_aeM_M
+    return ack_counter_aeM in [ack_aeM_M - 1,
+                               ack_aeM_M - 3]
 
 def pkt_iid():
     return random.randint(1, pkt_iid_N) == 1
