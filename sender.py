@@ -172,6 +172,20 @@ def send_reliable(cs, filedata, receiver_binding, win_size):
     while win_left_edge < INIT_SEQNO + content_len:
         win_left_edge = transmit_one()
 
+        ready = select.select([cs], [],[], RTO)
+        if(ready):
+            data_from_receiver, receiver_addr = cs.recvfrom(100)
+            ack_msg = Msg.deserialize(data_from_receiver)
+
+            
+            if ack_msg.len == 0:
+                win_left_edge = transmit_one()
+            else:
+                pass
+        
+
+        
+
 if __name__ == "__main__":
     args = parse_args()
     filedata = get_filedata(args['infile'])
