@@ -170,35 +170,34 @@ def send_reliable(cs, filedata, receiver_binding, win_size):
 
     # TODO: This is where you will make your changes. You
     # will not need to change any other parts of this file.
-    first_to_tx = int
-    last_acked = int
-    final_ack = int
+    final_ack = INIT_SEQNO + content_len
+    
     while win_left_edge < INIT_SEQNO + content_len:
-        first_to_tx = transmit_entire_window_from(win_left_edge)
+        bytes_sent = transmit_entire_window_from(win_left_edge)
 
         # Use select to see if we can read from a socket.
         read_sock, write_sock, err_sock = select.select([cs], [], [], RTO)
-        if not (read_sock, write_sock, err_sock):
-            transmit_one()
-            continue
+
+        if not (read_sock or write_sock or err_sock):
+            bytes_sent = transmit_one()
+
+        if win_right_edge > final_ack:
+            break
+
         if cs in read_sock:
             try:
-                
-                
-                
                 data_from_receiver, receiver_addr = cs.recvfrom(100)
                 ack_msg = Msg.deserialize(data_from_receiver)
                 print("Received {}".format(ack_msg))
 
-                last_acked = ack_msg.ack
-
-                if last_acked == first_to_tx:
-                    win_left_edge = last_acked
+                bytes_ack = ack_msg.ack
+                
+                if bytes_ack == bytes_sent:
+                    win_left_edge = bytes_ack
 
             except socket.error:
                 # If the receiver socket isn't open, we wait for a bit and try again.
                 time.sleep(RTO * 3)
-            
 
 if __name__ == "__main__":
     args = parse_args()
@@ -209,3 +208,17 @@ if __name__ == "__main__":
                   args['winsize'])
     cs.close()
     print("[S] Sender finished all transmissions.")
+
+
+
+
+
+
+
+
+
+
+1 2 3 4 5
+    |        |
+win_left_edge = 3
+win_right_edge = 7
