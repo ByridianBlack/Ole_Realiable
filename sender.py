@@ -143,6 +143,7 @@ def send_reliable(cs, filedata, receiver_binding, win_size):
             msg = messages[index]
             if (latest_tx + len(msg) <=
                 win_right_edge):
+
                 m = Msg(latest_tx, __ACK_UNUSED, msg)
                 cs.sendto(
                     m.serialize(),
@@ -169,37 +170,39 @@ def send_reliable(cs, filedata, receiver_binding, win_size):
 
     # TODO: This is where you will make your changes. You
     # will not need to change any other parts of this file.
-    first_to_tx = INIT_SEQNO
-    last_ack = INIT_SEQNO
-    final_ack = INIT_SEQNO + content_len
-    while last_ack < final_ack:
-        total_bytes_sent = transmit_entire_window_from(win_left_edge)
 
-        # Use select to see if we can read from a socket.
-        read_sock, write_sock, err_sock = select.select([cs], [], [], RTO)
+    bytes_ack = INIT_SEQNO
+    bytes_sent = INIT_SEQNO
+    while bytes_ack < INIT_SEQNO + content_len:
+        if (bytes_ack < bytes_sent):
+            print("Retransmit")
+            transmit_one()
 
-        if cs in read_sock:
+        bytes_sent = transmit_entire_window_from(bytes_sent);
+
+        # Wait for an ACK until either timemout or all byte have been acked.
+        while (bytes_ack != bytes_sent):
             try:
-                data_from_receiver, receiver_addr = cs.recvfrom(100)
-                ack_msg = Msg.deserialize(data_from_receiver)
-                print("Received {}".format(ack_msg))
+                read_sock, write_sock, err_sock = select.select([cs], [], [], RTO)
 
-                last_ack = ack_msg.ack
+                if cs in read_sock:
+                    data_from_receiver, receiver_addr = cs.recvfrom(100)
+                    ack_msg = Msg.deserialize(data_from_receiver)
+                    print("Received {}".format(ack_msg))
 
-                if last_ack > first_to_tx:
-                    win_right_edge += (last_ack - first_to_tx)  # Number of bytes acknowledged
-                    win_left_edge = last_ack
-                    first_to_tx = last_ack
+                    bytes_ack = max(bytes_ack, ack_msg.ack)
+                else:
+                    break
 
+            # Solves a Windows specific problem.
             except socket.error:
                 # If the receiver socket isn't open, we wait for a bit and try again.
                 time.sleep(RTO * 3)
 
-        else:
-            pass
-        
-
-        
+        new_bytes = bytes_ack - win_left_edge
+        win_left_edge += new_bytes
+        win_right_edge = min(win_right_edge + new_bytes,
+                             INIT_SEQNO + content_len)
 
 if __name__ == "__main__":
     args = parse_args()

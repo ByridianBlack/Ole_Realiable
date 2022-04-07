@@ -3,51 +3,61 @@ python sender.py --infile medium-input.txt
 
 1. no packet loss, no ACK loss
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss noloss --ooo_enabled
 	python receiver.py --pktloss noloss
 
 
 2. packet loss everyn with N = 3, no ACK loss
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss everyn --pktlossN 3 --ooo_enabled
 	python receiver.py --pktloss everyn --pktlossN 3
 
 
 3. packet loss everyn with N = 10, no ACK loss
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss everyn --pktlossN 10 --ooo_enabled
 	python receiver.py --pktloss everyn --pktlossN 10
 
 
 4. no packet loss, ACK loss everyn with N = 3
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss noloss --ackloss everyn --acklossN 3 --ooo_enabled
 	python receiver.py --pktloss noloss --ackloss everyn --acklossN 3
 	
 
 5. no packet loss, ACK loss everyn with N = 10
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss noloss --ackloss everyn --acklossN 10 --ooo_enabled
 	python receiver.py --pktloss noloss --ackloss everyn --acklossN 10
 
 
 6. packet loss alteveryn with N = 8, no ACK loss
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss alteveryn --pktlossN 8 --ooo_enabled
 	python receiver.py --pktloss alteveryn --pktlossN 8
 
 
 7. no packet loss, ACK loss alteveryn with N = 8
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss noloss --ackloss alteveryn --acklossN 8 --ooo_enabled
 	python receiver.py --pktloss noloss --ackloss alteveryn --acklossN 8
 
 
 8. packet loss iid with N = 5, no ACK loss
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss iid --pktlossN 5 --ooo_enabled
 	python receiver.py --pktloss iid --pktlossN 5
 
 
 9. no packet loss, ACK loss iid with N = 5
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss noloss --ackloss iid --acklossN 5 --ooo_enabled
 	python receiver.py --pktloss noloss --ackloss iid --acklossN 5
 
 
 10. packet loss everyn with N = 3, ACK loss alteveryn with N = 4
 	python sender.py --infile long-input.txt
+	python receiver.py --pktloss everyn --pktlossN 3 --ackloss alteveryn --acklossN 4 --ooo_enabled
 	python receiver.py --pktloss everyn --pktlossN 3 --ackloss alteveryn --acklossN 4
 
 
